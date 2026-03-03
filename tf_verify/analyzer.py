@@ -77,13 +77,26 @@ class layers:
     def back_propagate_gradient(self, nlb, nub):
         #assert self.is_ffn(), 'only supported for FFN'
 
+        # Build a mapping from weight layer index to the corresponding nlb/nub index.
+        # nlb/nub has one entry per layer node that appends bounds, which includes all
+        # layer types except 'Gather' (Flatten/Reshape). Weight layers ('FC', 'Conv')
+        # are a subset, so their nlb/nub indices may differ from their weight indices
+        # when non-weight layers such as 'Sub' appear before them.
+        nlb_idx = 0
+        weight_nlb_indices = []
+        for ltype in self.layertypes:
+            if ltype != 'Gather':  # Gather/Flatten nodes do not append to nlb/nub
+                if ltype in ('FC', 'Conv'):
+                    weight_nlb_indices.append(nlb_idx)
+                nlb_idx += 1
+
         grad_lower = self.last_weights.copy()
         grad_upper = self.last_weights.copy()
         last_layer_size = len(grad_lower)
         for layer in range(len(self.weights)-2, -1, -1):
             weights = self.weights[layer]
-            lb = nlb[layer]
-            ub = nub[layer]
+            lb = nlb[weight_nlb_indices[layer]]
+            ub = nub[weight_nlb_indices[layer]]
             layer_size = len(weights[0])
             grad_l = [0] * layer_size
             grad_u = [0] * layer_size
