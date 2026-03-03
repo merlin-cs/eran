@@ -362,7 +362,7 @@ class DeepzonoSub:
             iterable of ints with the shape of the output of this node
         """
         add_input_output_information(self, input_names, output_name, output_shape)
-        self.bias = np.ascontiguousarray(bias, dtype=np.double)
+        self.bias = np.ascontiguousarray(bias.reshape(-1), dtype=np.double)
         self.is_minuend = is_minuend
 
 
@@ -385,7 +385,7 @@ class DeepzonoSub:
         offset, old_length = self.abstract_information
         element = ffn_sub_bias_zono(man, True, element, offset, self.bias, self.is_minuend, old_length)
         #nn.ffn_counter += 1
-        add_bounds(man, element, nlb, nub, self.output_length, offset+old_length, is_refine_layer=True)
+        add_bounds(man, element, nlb, nub, self.output_length, offset, is_refine_layer=True)
         if testing:
         #    lb, ub = 
             return element, nlb[-1], nub[-1]
