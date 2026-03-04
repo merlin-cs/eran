@@ -169,13 +169,13 @@ def translate_output_constraints(C_out):
     for i in range(C_out.shape[0]):
         numeric = C_out[i,-1]
         if numeric != 0:
-            l_label = (C_out[i, 0:-1] == -1).nonzero()
-            g_label = (C_out[i, 0:-1] == 1).nonzero()
-            assert len(l_label) == 1 + len(g_label) == 1
+            l_label = (C_out[i, 0:-1] == -1).nonzero()[0]
+            g_label = (C_out[i, 0:-1] == 1).nonzero()[0]
+            assert len(l_label) + len(g_label) == 1
             if len(l_label)>0:
                 raise NotImplementedError
             else:
-                and_list.append([(l_label, -1, numeric)])
+                and_list.append([(g_label[0], -1, numeric)])
         else:
             l_label = (C_out[i,0:-1]==-1).nonzero()[0]
             g_label = (C_out[i,0:-1]==1).nonzero()[0]
